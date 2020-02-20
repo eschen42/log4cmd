@@ -22,6 +22,9 @@ include ".\iso8601zulu.vbs"
 
 include ".\log4vbs_config.vbs"
 
+Sub LogDebug(Message)
+  Logger "DEBUG", Message
+End Sub
 Sub LogInfo(Message)
   Logger "INFO ", Message
 End Sub
@@ -60,6 +63,8 @@ If WScript.ScriptName = "log4vbs.vbs" Then
     WScript.Echo "Args is null"
   Else
     Select Case Args.Item("lvl")
+      Case "debug"
+        LogDebug Args.Item("msg")
       Case "info"
         LogInfo Args.Item("msg")
       Case "warn"
