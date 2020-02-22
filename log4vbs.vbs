@@ -88,7 +88,8 @@ If WScript.ScriptName = "log4vbs.vbs" Then
       Case Else
         WScript.StdErr.WriteLine "usage: cscript //nologo " & WScript.ScriptName & _
           " /lvl:{info|warn|error|fatal|none|pass|fail|skip}" & _
-          " /msg:your-message-in-double-quotes"
+          " /msg:your-message-in-double-quotes" & _
+          " [/src:override-configured-source]"
     End Select
   End If
 End If
