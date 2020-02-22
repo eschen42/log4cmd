@@ -66,31 +66,35 @@ If WScript.ScriptName = "log4vbs.vbs" Then
     If Not argSrc = "" Then
       logSource = argSrc
     End If
-    Select Case Args.Item("lvl")
-      Case "debug"
-        LogDebug Args.Item("msg")
-      Case "info"
-        LogInfo Args.Item("msg")
-      Case "warn"
-        LogWarn Args.Item("msg")
-      Case "error"
-        LogError Args.Item("msg")
-      Case "fatal"
-        LogFatal Args.Item("msg")
-      Case "none"
-        LogNone Args.Item("msg")
-      Case "pass"
-        LogPass Args.Item("msg")
-      Case "fail"
-        LogFail Args.Item("msg")
-      Case "skip"
-        LogSkip Args.Item("msg")
-      Case Else
-        WScript.StdErr.WriteLine "usage: cscript //nologo " & WScript.ScriptName & _
-          " /lvl:{info|warn|error|fatal|none|pass|fail|skip}" & _
-          " /msg:your-message-in-double-quotes" & _
-          " [/src:override-configured-source]"
-    End Select
+    ' If lvl is not set, instr will return 1
+    ' If lvl is set to something not in logLevelFilter, instr will return 0
+    If InStr("|" & logLevelFilter & "|", Args.Item("lvl")) > 1 Then
+      Select Case Args.Item("lvl")
+        Case "debug"
+          LogDebug Args.Item("msg")
+        Case "info"
+          LogInfo Args.Item("msg")
+        Case "warn"
+          LogWarn Args.Item("msg")
+        Case "error"
+          LogError Args.Item("msg")
+        Case "fatal"
+          LogFatal Args.Item("msg")
+        Case "none"
+          LogNone Args.Item("msg")
+        Case "pass"
+          LogPass Args.Item("msg")
+        Case "fail"
+          LogFail Args.Item("msg")
+        Case "skip"
+          LogSkip Args.Item("msg")
+        Case Else
+          WScript.StdErr.WriteLine "usage: cscript //nologo " & WScript.ScriptName & _
+            " /lvl:{debug|info|warn|error|fatal|none|pass|fail|skip}" & _
+            " /msg:your-message-in-double-quotes" & _
+            " [/src:override-configured-source]"
+      End Select
+    End If
   End If
 End If
 

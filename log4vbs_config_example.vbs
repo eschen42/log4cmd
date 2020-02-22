@@ -13,6 +13,8 @@
 
 Dim logSource
 logSource = "log4vbs"
+Dim logLevelFilter
+logLevelFilter = "debug|info|warn|error|fatal|none|pass|fail|skip"
 
 include ".\log4vbs_logMessage.vbs"
 
