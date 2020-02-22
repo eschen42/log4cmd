@@ -10,7 +10,7 @@ End If
 ' function ref: https://stackoverflow.com/a/43957897
 Sub include( relativeFilePath )
   Dim thisFolder, absFilePath
-  thisFolder = fso.GetParentFolderName( WScript.ScriptFullName ) 
+  thisFolder = fso.GetParentFolderName( WScript.ScriptFullName )
   absFilePath = fso.BuildPath( thisFolder, relativeFilePath )
   executeGlobal fso.openTextFile( absFilePath ).readAll()
 End Sub
@@ -18,7 +18,7 @@ End Sub
 Dim log4vbsSinkCount
 log4vbsSinkCount = 0
 
-include ".\iso8601zulu.vbs"
+include ".\include\iso8601zulu.vbs"
 
 include ".\log4vbs_config.vbs"
 
@@ -53,7 +53,7 @@ End Sub
 ' Only process command-line arguments if this was not included
 '   in another script (this test is a hack)
 If WScript.ScriptName = "log4vbs.vbs" Then
-  Dim Args
+  Dim Args, argSrc
   Set Args = Wscript.Arguments.Named
   If Args Is Nothing Then
     WScript.Echo "Args is Nothing"
@@ -62,6 +62,10 @@ If WScript.ScriptName = "log4vbs.vbs" Then
   ElseIf IsNull(Args) Then
     WScript.Echo "Args is null"
   Else
+    argSrc = Args.Item("src")
+    If Not argSrc = "" Then
+      logSource = argSrc
+    End If
     Select Case Args.Item("lvl")
       Case "debug"
         LogDebug Args.Item("msg")
