@@ -11,28 +11,37 @@
 
 '''   include ".\log4vbs_config.vbs"
 
-Dim logSource
+'WScript.StdErr.WriteLine "(1)"
+
+Dim logSource, strLog4cmdKey, log2file_objShell, strLog4cmdDir
+strLog4cmdKey = "HKCU\Environment\log4cmd"
 logSource = "log4vbs"
-Dim logLevelFilter
 logLevelFilter = "debug|info|warn|error|fatal|none|pass|fail|skip"
 
+' Include the message formatter - ISO8601 LEVEL MESSAGE
 include ".\log4vbs_logMessage.vbs"
 
-Dim strLog4cmdKey
-strLog4cmdKey = "HKCU\Environment\log4cmd"
-Dim log2file_objShell, strLog4cmdDir
 Set log2file_objShell = WScript.CreateObject("WScript.Shell")
+set strLog4cmdDir = Nothing
+On Error Resume Next
 strLog4cmdDir = log2file_objShell.RegRead(strLog4cmdKey)
-strLog4cmdDir = log2file_objShell.ExpandEnvironmentStrings(strLog4cmdDir)
-Set log2file_objShell = Nothing
+On Error Goto 0
+If IsObject(strLog4cmdDir) Then
+  WScript.StdErr.WriteLine "Warning: Aborting logging because unable to read registry value " & strLog4cmdKey
+Else
 
-include ".\log4vbs_log2file.vbs"
-log4vbsSinkCount = 1 + log4vbsSinkCount
+  strLog4cmdDir = log2file_objShell.ExpandEnvironmentStrings(strLog4cmdDir)
+  Set log2file_objShell = Nothing
 
-include ".\log4vbs_log2stdout.vbs"
-log4vbsSinkCount = 1 + log4vbsSinkCount
+  include ".\log4vbs_log2file.vbs"
+  log4vbsSinkCount = 1 + log4vbsSinkCount
 
-Sub Logger(Level, Message)
+  include ".\log4vbs_log2stdout.vbs"
+  log4vbsSinkCount = 1 + log4vbsSinkCount
+
+End If
+
+Function Logger(Level, Message)
   Dim i
   For i = 1 to log4vbsSinkCount
     Select Case i
@@ -42,5 +51,5 @@ Sub Logger(Level, Message)
         LogToStdOut logSource, Level, Message
     End Select
   Next
-End Sub
-
+  Logger = True
+End Function
