@@ -64,3 +64,7 @@ A path to a uniquely named supplementary log may be assigned using the `log4cmd_
 log4cmd_newlog.cmd mySourceName myLogName MY_LOGNAME_LOG
 ```
 creates the `mySourceName` subdirectory under the `log4cmd` logging directory root and generates a unique path that can be used to log any text in any fashion that you require. 
+
+## Log-level Filtering
+
+The log levels that will be accepted for logging (i.e., not silently ignored) may be assigned to the `logLevelFilter` in `log4vbs_config.vbs`.
