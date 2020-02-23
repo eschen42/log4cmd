@@ -79,3 +79,26 @@ The log levels that will be accepted for logging (i.e., not silently ignored) ma
 A hallmark of secure logging is that logs be written where they cannot be modified or erased.  If you have a need for secure logging, you could create a logger to interact with such a logging facility.  The file logger included here is **not** intended to meet any security requirements.
 
 The Windows Event Log is set up to achieve such non-redactability to a great degree, for unpriviliged users at least; however, an unprivileged user can only write to the *Application Log* "event source" unless an administrator creates an application-specific event source, so it may be too much of a jumble to be worthwhile.  If you want to do this, you might find what you need to get started at [https://ss64.com/vb/logevent.html](https://ss64.com/vb/logevent.html).
+
+## Alternative Configuration Technique - "tail patching"
+
+A "tail patch" is applying a few minor changes after some code has executed.  This makes minor configuration changes easier both to read and to maintain.
+
+### `log4vbs_config.vbs`
+
+If you do not need to change the loggers but merely want to override the values assigned to some variables, one alternative to copying `log4vbs_config_example.vbs` to `log4vbs_config.vbs` is to create `log4vbs_config.vbs` as follows:
+```
+include ".\log4vbs_config_example.vbs"
+logSource = "myOwnLogSource"
+logLevelFilter = "debug|info|warn|error|fatal"
+```
+Note that `include` is a function defined in `log4vbs.vbs`; it is not a standard part of VBScript.
+
+### `log4cmd_regkey.cmd`
+
+Similarly, you can override just the logging location by creating `log4cmd_regkey.cmd` as follows:
+```
+@call "%~dp0\log4cmd_regkey_example.cmd"
+@set LOG4CMD_ROOT_EX=%TEMP%\log4cmd
+@set LOG4CMD_ROOT=%%TEMP%%\log4cmd
+```
