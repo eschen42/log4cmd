@@ -80,7 +80,7 @@ If includeResult Then
   includeResult = False
   includeResult = include(".\log4vbs_config.vbs")
   If Not includeResult Then
-    WScript.StdErr.WriteLine "Warning: Could not include log4vbs_config_example.vbs - " & _
+    WScript.StdErr.WriteLine "Warning: Could not include log4vbs_config.vbs - " & _
     Err.Description
   End If
 End If
