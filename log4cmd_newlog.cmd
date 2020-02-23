@@ -16,11 +16,13 @@ set NX0=%~nx0
 
 set ERROR_PATH_NOT_FOUND=-3
 set ERROR_INVALID_PARAMETER=-87
-if not exist "%DP0%\log4cmd_regkey.cmd" (
-  echo "%NX0%: aborting because file %DP0%\log4cmd_regkey.cmd was not found"
+set LOG4CMD_REGKEY_CMD="%DP0%\log4cmd_regkey.cmd"
+if not exist %LOG4CMD_REGKEY_CMD% set LOG4CMD_REGKEY_CMD="%DP0%\log4cmd_regkey_example.cmd"
+if not exist %LOG4CMD_REGKEY_CMD% (
+  echo "%NX0%: aborting because neither %DP0%\log4cmd_regkey.cmd nor %DP0%\log4cmd_regkey_example.cmd was found"
   exit /b %ERROR_PATH_NOT_FOUND%
 )
-call "%DP0%\log4cmd_regkey.cmd"
+call %LOG4CMD_REGKEY_CMD%
 if "%LOG4CMD_REGKEYVAL%" == "" (
   echo "%NX0%: aborting because environment variable LOG4CMD_REGKEYVAL was not found"
   exit /b %ERROR_INVALID_PARAMETER%
