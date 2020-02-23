@@ -8,7 +8,7 @@ It can be invoked directly from the Windows command line or included in another 
 
 ```
 cscript //nologo log4vbs.vbs /lvl:{debug:info|warn|error|fatal|none|pass|fail|skip} /msg:your-message-in-double-quotes [/src:override-configured-source]
-log4cmd_newlog.cmd sourceName logName variableName
+log4cmd_newlog.cmd variableName sourceName logName
 ```
 
 ## How to use - quick start
@@ -61,7 +61,7 @@ A *LogName* is a label for a supplementary log.  Each supplementary log for a gi
 
 A path to a uniquely named supplementary log may be assigned using the `log4cmd_newlog.cmd` command.  For example:
 ```
-log4cmd_newlog.cmd mySourceName myLogName MY_LOGNAME_LOG
+log4cmd_newlog.cmd MY_LOGNAME_LOG mySourceName myLogName
 ```
 creates the `mySourceName` subdirectory under the `log4cmd` logging directory root and generates a unique path that can be used to log any text in any fashion that you require. 
 
