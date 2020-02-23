@@ -1,4 +1,5 @@
 @echo off
+setlocal
 pushd "%~dp0"
 
 :: demonstrate invocation directly from the command line
@@ -12,3 +13,4 @@ cscript //nologo log4vbs.vbs /lvl:debug /msg:"Greetings, Terra"
 cscript //nologo demo_log4vbs.vbs
 
 popd
+endlocal

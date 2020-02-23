@@ -34,14 +34,14 @@ if [%LOG4CMD_HOME%] == [] (
 )
 
 if [%3] == [] (
-  echo usage: %0 sourceName logName variableName
+  echo usage: %0 environmentVariableName sourceName logName
   echo This script creates a logname and assignes it to the named variable.
   exit /b %ERROR_INVALID_PARAMETER%
 )
 
-set SOURCE_NAME=%1
-set LOG_NAME=%2
-set VARIABLE_NAME=%3
+set SOURCE_NAME=%2
+set LOG_NAME=%3
+set VARIABLE_NAME=%1
 
 if not exist "%LOG4CMD_HOME%\%SOURCE_NAME%" mkdir "%LOG4CMD_HOME%\%SOURCE_NAME%"
 if not exist "%LOG4CMD_HOME%\%SOURCE_NAME%" (
@@ -53,7 +53,7 @@ if not exist "%LOG4CMD_HOME%\%SOURCE_NAME%" (
 for /f %%U in ('cscript //nologo "%DP0%\nowISO8601zulu.vbs"') do @set ISO8601ZULU=%%U
 for /f %%U in ('cscript //nologo "%DP0%\uuid.vbs"') do @set UUID=%%U
 
-set LOG_DPNX=%LOG4CMD_HOME%\%SOURCE_NAME%\%ISO8601ZULU%_%UUID%_%LOG_NAME%.log
+set LOG_DPNX=%LOG4CMD_HOME%\%SOURCE_NAME%\%LOG_NAME%_%ISO8601ZULU%_%UUID%.log
 
 echo set %VARIABLE_NAME%=%LOG_DPNX%
 endlocal & set %VARIABLE_NAME%=%LOG_DPNX%
