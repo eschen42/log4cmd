@@ -13,7 +13,7 @@ log4cmd_newlog.cmd variableName sourceName logName
 
 ## How to use - quick start
 
-### TL;DR;
+### TL;DR
 
 ```
 :: Set up registry keys and create directory where log files will be written.
@@ -29,10 +29,10 @@ log4cmd_newlog.cmd MY_LOGNAME_LOG mySourceName myLogName
 
 By default:
 
-- the `log4cmd` value under the `HKCU\Environment` specifies the root directory used for logging by `log4cmd`;
-- that value specifies `%USERPROFILE%\AppData\Local\log4cmd` as the logging root;
-- the "log source" is named `log4vbs`.
-- log messages will be written to %USERPROFILE%\AppData\Local\log4cmd\log4vbs-CCYY-MM-DD.log
+- In the Windows registry, the `log4cmd` value under the `HKCU\Environment` key specifies the root directory used for logging by `log4cmd`;
+  - also by default, that value specifies `%USERPROFILE%\AppData\Local\log4cmd` as the logging root.
+- The "log source" is named `log4vbs`.
+- Log messages will be written to %USERPROFILE%\AppData\Local\log4cmd\log4vbs-CCYY-MM-DD.log
   - where CCYY is the current year, MM is the current month, and DD is the current day, in the UTC time zone.
 
 ### Demonstration
@@ -41,7 +41,7 @@ To see `log4cmd` in action, assuming that the default settings seem acceptable t
 
 - Run `install_example.cmd`.
 - Run `demo_log4cmd.cmd` to demonstrate invocation of `log4vbs.vbs` directly from the command line.
-- Run `demo_log4vbs.vbs` to demonstrate invocation of `log4vbs.vbs` from VBScript by inclusion.
+- Run `cscript //nologo demo_log4vbs.vbs` to demonstrate invocation of `log4vbs.vbs` from VBScript by inclusion.
   - This is in fact run from `demo_log4cmd.cmd` as well.
 - Run `log4cmd_newlog.cmd` to create a unique path for a general purpose `supplementary` log file.
   - Each supplementary log for a give source is written to a subdirectory named after that source, created in the logging root directory.
