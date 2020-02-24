@@ -1,14 +1,50 @@
 # log4cmd - a configurable log proxy for the windows command line
 
-This is a configurable command-line logger written in VBScript.
+This is a configurable command-line logger for Windows, written in VBScript.
 
-It can be invoked directly from the Windows command line or included in another VBScript program.
+It can be invoked directly from the Windows command line or included in a VBScript program.
+
+It can be configured to send the same message to each of several ["loggers"](#loggers), subject to ["log-level filtering"](#log-level-filtering). 
 
 ## Usage
 
+To log a message, you can invoke `log4vbs.vbs` directly:
 ```
-cscript //nologo log4vbs.vbs /lvl:{debug:info|warn|error|fatal|none|pass|fail|skip} /msg:your-message-in-double-quotes [/src:override-configured-source]
-log4cmd_newlog.cmd variableName sourceName logName
+cscript //nologo log4vbs.vbs /lvl:{debug|info|warn|error|fatal|none|pass|fail|skip} /msg:your-message-in-double-quotes [/src:override-default-configured-source]
+```
+e.g.:
+```
+cscript //nologo log4vbs.vbs /lvl:info /msg:"This is only a test."
+```
+
+- The `lvl` and `msg` arguments are required.
+- The configuration specifies a default value for `src` (the [Log Source](#log-source), see below for details).
+  - Therefore the `src` argument is optional.
+
+To do this more succinctly, you can also use one of the "convenience scripts" for general purpose logging:
+
+- `log_debug.cmd`
+- `log_info.cmd`
+- `log_warn.cmd`
+- `log_error.cmd`
+- `log_fatal.cmd`
+
+or for reporting test results:
+
+- `log_none.cmd`
+- `log_pass.cmd`
+- `log_fail.cmd`
+- `log_skip.cmd`
+
+Each of these takes the log message as the first argument, and optionally an alternative source, e.g.:
+```
+log_debug "Wow! This is wonderful" myDebugLogSource
+log_fatal "Bummer. Cannot continue. Sorry"
+```
+
+To create a path to a "supplementary log", as described in the [Supplementary Logs](#supplementary-logs) section below, and assign it to the `MY_SUPPLEMENATARY_LOG_PATH` environment variable:
+```
+log4cmd_newlog.cmd MY_SUPPLEMENATARY_LOG_PATH sourceName logName
 ```
 
 ## How to use - quick start
@@ -18,32 +54,56 @@ log4cmd_newlog.cmd variableName sourceName logName
 ```
 :: Set up registry keys and create directory where log files will be written.
 install_example.cmd
+
 :: Write some log messages.
 demo_log4cmd.cmd
+
 :: Create mySourceName subdirectory in log directory and generate a path for a
 ::   uniquely named file in that directory, but do not create that file yet.
 log4cmd_newlog.cmd MY_LOGNAME_LOG mySourceName myLogName
 ```
 
-### Defaults
+### Default Behavior
 
-By default:
+#### Windows Registry
 
-- In the Windows registry, the `log4cmd` value under the `HKCU\Environment` key specifies the root directory used for logging by `log4cmd`;
-  - also by default, that value specifies `%USERPROFILE%\AppData\Local\log4cmd` as the logging root.
-- The "log source" is named `log4vbs`.
-- Log messages will be written to %USERPROFILE%\AppData\Local\log4cmd\log4vbs-CCYY-MM-DD.log
-  - where CCYY is the current year, MM is the current month, and DD is the current day, in the UTC time zone.
+In the Windows registry:
+
+- the `log4cmd` value under the `HKCU\Environment` key specifies the root directory used for logging by `log4cmd`;
+- that value specifies `%USERPROFILE%\AppData\Local\log4cmd` as the logging root.
+
+#### Log Source
+
+The default "log source" is named `log4vbs`:
+
+- This is merely the default.
+  - Individual logging calls may specify any log source.
+- Log sources are merely names; there is no requirement that they be defined before they are used.
+
+#### Log Messages
+
+As long as an alternative log source has not been specified, log messages will be written to `%USERPROFILE%\AppData\Local\log4cmd\log4vbs-CCYY-MM-DD.log`:
+
+- `CCYY` is the current year, `MM` is the current month (01-12), and `DD` is the current day-of-month, in the UTC time zone.
+- When logging, if a log source is specified as an alternative to the default, it will be used as the prefix in lieu of `log4vbs`.
 
 ### Demonstration
 
 To see `log4cmd` in action, assuming that the default settings seem acceptable to you:
 
+#### Set Up
+
 - Run `install_example.cmd`.
 - Run `demo_log4cmd.cmd` to demonstrate invocation of `log4vbs.vbs` directly from the command line.
+
+#### Logging
+
 - Run `cscript //nologo demo_log4vbs.vbs` to demonstrate invocation of `log4vbs.vbs` from VBScript by inclusion.
   - This is in fact run from `demo_log4cmd.cmd` as well.
-- Run `log4cmd_newlog.cmd` to create a unique path for a general purpose `supplementary` log file.
+
+#### Supplementary Logs
+
+- Run `log4cmd_newlog.cmd` to create a unique path for a general purpose "supplementary log" file.
   - Each supplementary log for a give source is written to a subdirectory named after that source, created in the logging root directory.
   - usage: `log4cmd_newlog.cmd MY_LOGNAME_LOG mySourceName myLogName`
     - This creates the `mySourceName` subdirectory under the `log4cmd` logging directory root and assigns to the `MY_LOGNAME_LOG` environment variable a unique path that can be used to log any text in any fashion that you require. 
@@ -51,6 +111,7 @@ To see `log4cmd` in action, assuming that the default settings seem acceptable t
 
 ### Customization
 
+Customizations will hopefully be straightforward.  (For a more advanced approach that may be easier to maintain, see [#alternative-configuration-technique---tail-patching](Alternative Configuration Technique - "tail patching") below.)
 - If you want to customize the registry key used to locate where log files will be written, or to customize that location, copy `log4cmd_regkey_example.cmd` to `log4cmd_regkey.cmd` and make the desired changes there.
 - If you want to configure the logging behavior itself, copy `log4vbs_config_example.vbs` to `log4vbs_config.vbs` and make the desired changes there:
   - You can modify `strLog4cmdKey` to match any change made to the location in `log4cmd_regkey.cmd`.
@@ -72,7 +133,9 @@ Presently there are two loggers:
 
 ### Log-level Filtering
 
-The log levels that will be accepted for logging (i.e., not silently ignored) may be assigned to the `logLevelFilter` in `log4vbs_config.vbs`.
+The log levels that will be accepted for logging (i.e., not silently ignored) may be assigned to the `logLevelFilter` in `log4vbs_config.vbs`, which filters logging to all loggers.
+
+The `Select Case` statement in the `Loggers` function in `log4vbs_config_example.vbs` supports logger-specific log-level filtering through the `logLevelFilterForFile` and `logLevelFilterForStdOut` VBScript variables.
 
 ### Security
 

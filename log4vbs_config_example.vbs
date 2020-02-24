@@ -2,21 +2,34 @@
 
 '''   ' To include this in another VBScript file, use this include
 '''   ' function ref: https://stackoverflow.com/a/43957897
-'''   Sub include( relativeFilePath ) 
-'''       Set fso = CreateObject("Scripting.FileSystemObject")
-'''       thisFolder = fso.GetParentFolderName( WScript.ScriptFullName ) 
-'''       absFilePath = fso.BuildPath( thisFolder, relativeFilePath )
+'''
+'''   Function include( relativeFilePath )
+'''     Dim thisFolder, absFilePath, errMsg
+'''     include = False
+'''     thisFolder = fso.GetParentFolderName( WScript.ScriptFullName )
+'''     absFilePath = fso.BuildPath( thisFolder, relativeFilePath )
+'''     If fso.FileExists( absFilePath ) Then
 '''       executeGlobal fso.openTextFile( absFilePath ).readAll()
-'''   End Sub
-
+'''       include = True
+'''     Else
+'''       errMsg ="File does not exist: " & absFilePath
+'''       Err.Description = errMsg
+'''     End If
+'''   End Function
+'''
+'''   ' e.g.:
+'''
 '''   include ".\log4vbs_config.vbs"
 
-'WScript.StdErr.WriteLine "(1)"
-
 Dim logSource, strLog4cmdKey, log2file_objShell, strLog4cmdDir
-strLog4cmdKey = "HKCU\Environment\log4cmd"
-logSource = "log4vbs"
-logLevelFilter = "debug|info|warn|error|fatal|none|pass|fail|skip"
+Dim logLevelFilterForStdOut, logLevelFilterForFile
+Dim enabledFile, enabledStdOut
+
+strLog4cmdKey           = "HKCU\Environment\log4cmd"
+logSource               = "log4vbs"
+logLevelFilter          = "debug|info|warn|error|fatal|none|pass|fail|skip"
+logLevelFilterForFile   = "debug|info|warn|error|fatal|none|pass|fail|skip"
+logLevelFilterForStdOut = "debug|info|warn|error|fatal|none|pass|fail|skip"
 
 ' Include the message formatter - ISO8601 LEVEL MESSAGE
 include ".\log4vbs_logMessage.vbs"
@@ -33,22 +46,27 @@ Else
   strLog4cmdDir = log2file_objShell.ExpandEnvironmentStrings(strLog4cmdDir)
   Set log2file_objShell = Nothing
 
-  include ".\log4vbs_log2file.vbs"
+  enabledFile = include(".\log4vbs_log2file.vbs")
   log4vbsSinkCount = 1 + log4vbsSinkCount
 
-  include ".\log4vbs_log2stdout.vbs"
+  enabledStdOut = include(".\log4vbs_log2stdout.vbs")
   log4vbsSinkCount = 1 + log4vbsSinkCount
 
 End If
 
 Function Logger(Level, Message)
-  Dim i
+  Dim i, trimLCaseLevel
+  trimLCaseLevel = RTrim(LCase(Level))
   For i = 1 to log4vbsSinkCount
     Select Case i
       Case 1
-        LogToFile logSource, Level, Message
+        If enabledFile   And InStr("|" & logLevelFilterForFile   & "|", trimLCaseLevel) > 1 Then
+          LogToFile   logSource, Level, Message
+        End If
       Case 2
-        LogToStdOut logSource, Level, Message
+        If enabledStdOut And InStr("|" & logLevelFilterForStdOut & "|", trimLCaseLevel) > 1 Then
+          LogToStdOut logSource, Level, Message
+        End If
     End Select
   Next
   Logger = True

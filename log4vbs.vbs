@@ -3,7 +3,6 @@ Option Explicit
 
 Dim bLog4vbsConfigResult
 Dim logLevelFilter
-logLevelFilter = "debug|info|warn|error|fatal|none|pass|fail|skip"
 
 If WScript.ScriptName = "log4vbs.vbs" Then
   Dim fso
@@ -84,6 +83,7 @@ If includeResult Then
     If Not includeResult Then
       WScript.StdErr.WriteLine "Warning: Could include neither log4vbs_config.vbs nor log4vbs_config_example.vbs - " & _
       Err.Description
+      logLevelFilter = "debug|info|warn|error|fatal|none|pass|fail|skip"
     End If
   End If
 End If
