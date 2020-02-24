@@ -57,10 +57,11 @@ End If
 Function Logger(Level, Message)
   Dim i, trimLCaseLevel
   trimLCaseLevel = RTrim(LCase(Level))
+  If Len(Level) > 0 And Len(trimLCaseLevel) = 0 Then trimLCaseLevel = "none"
   For i = 1 to log4vbsSinkCount
     Select Case i
       Case 1
-        If enabledFile   And InStr("|" & logLevelFilterForFile   & "|", trimLCaseLevel) > 1 Then
+        If enabledFile   And (InStr("|" & logLevelFilterForFile   & "|", trimLCaseLevel) > 1) Then
           LogToFile   logSource, Level, Message
         End If
       Case 2
