@@ -29,7 +29,7 @@ if "%LOG4CMD_REGKEYVAL%" == "" (
 )
 
 set LOG4CMD_HOME=
-for /f %%L in ('cscript //nologo regReadExpand.vbs "%LOG4CMD_REGKEYVAL%"') do @set LOG4CMD_HOME=%%L
+for /f %%L in ('cscript //nologo "%DP0%\regReadExpand.vbs" "%LOG4CMD_REGKEYVAL%"') do @set LOG4CMD_HOME=%%L
 if [%LOG4CMD_HOME%] == [] (
   echo "%NX0%: aborting because environment variable LOG4CMD_HOME was not set"
   exit /b %ERROR_INVALID_PARAMETER%
@@ -55,6 +55,10 @@ if not exist "%LOG4CMD_HOME%\%SOURCE_NAME%" (
 for /f %%U in ('cscript //nologo "%DP0%\nowISO8601zulu.vbs"') do @set ISO8601ZULU=%%U
 for /f %%U in ('cscript //nologo "%DP0%\uuid.vbs"') do @set UUID=%%U
 
+:: colons are illegal in paths except for after a drive letter
+set ISO8601ZULU=%ISO8601ZULU::=-%
+
+:: construct the path
 set LOG_DPNX=%LOG4CMD_HOME%\%SOURCE_NAME%\%LOG_NAME%_%ISO8601ZULU%_%UUID%.log
 
 echo set %VARIABLE_NAME%=%LOG_DPNX%
