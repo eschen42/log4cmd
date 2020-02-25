@@ -60,7 +60,7 @@ for /f %%U in ('cscript //nologo "%DP0%\uuid.vbs"') do @set UUID=%%U
 set ISO8601ZULU=%ISO8601ZULU::=-%
 
 :: construct the path
-set LOG_DPNX=%LOG4CMD_HOME%\%SOURCE_NAME%\%LOG_NAME%_%ISO8601ZULU%_%UUID%.log
+set LOG_DPNX=%LOG4CMD_HOME%\%SOURCE_NAME%\%LOG_NAME%_%ISO8601ZULU%_%UUID:~0,8%.log
 
 echo set %VARIABLE_NAME%=%LOG_DPNX%
 endlocal & set %VARIABLE_NAME%=%LOG_DPNX%
