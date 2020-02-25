@@ -29,11 +29,12 @@ if "%LOG4CMD_REGKEYVAL%" == "" (
 )
 
 set LOG4CMD_HOME=
-for /f %%L in ('cscript //nologo "%DP0%\regReadExpand.vbs" "%LOG4CMD_REGKEYVAL%"') do @set LOG4CMD_HOME=%%L
+for /f "delims=" %%L in ('cscript //nologo "%DP0%\regReadExpand.vbs" "%LOG4CMD_REGKEYVAL%"') do @set LOG4CMD_HOME="%%L"
 if [%LOG4CMD_HOME%] == [] (
   echo "%NX0%: aborting because environment variable LOG4CMD_HOME was not set"
   exit /b %ERROR_INVALID_PARAMETER%
 )
+set LOG4CMD_HOME=%LOG4CMD_HOME:~1,-1%
 
 if [%3] == [] (
   echo usage: %0 environmentVariableName sourceName logName
