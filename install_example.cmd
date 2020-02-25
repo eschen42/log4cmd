@@ -22,7 +22,7 @@ if not exist "%LOG4CMD_ROOT_EX%" echo Create directory "%LOG4CMD_ROOT%"?
 echo If you do not wish to proceeed, press control-C and then type Y to terminate this script.
 :: pause to get confirmation before proceeding
 pause
-reg add   "%LOG4CMD_REGKEY%" /f /t REG_EXPAND_SZ /d %LOG4CMD_ROOT% /v "%LOG4CMD_REGVAL%"
+reg add   "%LOG4CMD_REGKEY%" /f /t REG_EXPAND_SZ /d "%LOG4CMD_ROOT%" /v "%LOG4CMD_REGVAL%"
 if not exist "%LOG4CMD_ROOT_EX%" reg query "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%" && (
   if not exist "%LOG4CMD_ROOT_EX%" echo Attempting to create directory %LOG4CMD_ROOT_EX%
   if not exist "%LOG4CMD_ROOT_EX%" mkdir "%LOG4CMD_ROOT_EX%"
