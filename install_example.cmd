@@ -12,24 +12,31 @@ if exist "%~dp0\log4cmd_regkey.cmd" call "%~dp0\log4cmd_regkey.cmd"
 if "%LOG4CMD_REGKEYVAL%" == "" call "%~dp0\log4cmd_regkey_example.cmd"
 if /I "%1" == "remove" goto :remove
 
+reg query "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%" >NUL 2>&1 && (
+  if not exist "%LOG4CMD_ROOT_EX%" echo Attempting to create directory %LOG4CMD_ROOT_EX%
+  if not exist "%LOG4CMD_ROOT_EX%" mkdir "%LOG4CMD_ROOT_EX%"
+  endlocal & goto :eof
+) 
 echo Set registry value "%LOG4CMD_REGVAL%" under key "%LOG4CMD_REGKEY%" to "%LOG4CMD_ROOT%"?
 if not exist "%LOG4CMD_ROOT_EX%" echo Create directory "%LOG4CMD_ROOT%"?
 echo If you do not wish to proceeed, press control-C and then type Y to terminate this script.
 :: pause to get confirmation before proceeding
 pause
-if     exist "%LOG4CMD_ROOT_EX%" echo Found directory %LOG4CMD_ROOT_EX%
-if not exist "%LOG4CMD_ROOT_EX%" echo Attempting to create directory %LOG4CMD_ROOT_EX%
-if not exist "%LOG4CMD_ROOT_EX%" mkdir "%LOG4CMD_ROOT_EX%"
 reg add   "%LOG4CMD_REGKEY%" /f /t REG_EXPAND_SZ /d %LOG4CMD_ROOT% /v "%LOG4CMD_REGVAL%"
-reg query "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%"
+if not exist "%LOG4CMD_ROOT_EX%" reg query "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%" && (
+  if not exist "%LOG4CMD_ROOT_EX%" echo Attempting to create directory %LOG4CMD_ROOT_EX%
+  if not exist "%LOG4CMD_ROOT_EX%" mkdir "%LOG4CMD_ROOT_EX%"
+)
 endlocal
 goto :eof
 
 :remove
 
-echo Deleting registry value "%LOG4CMD_REGVAL%" under key "%LOG4CMD_REGKEY%"
-:: reg delete will prompt before acting, so no need for confirmation before proceeding
-reg delete "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%"
+reg query "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%" >NUL 2>&1 && (
+  echo Deleting registry value "%LOG4CMD_REGVAL%" under key "%LOG4CMD_REGKEY%"
+  :: reg delete will prompt before acting, so no need for confirmation before proceeding
+  reg delete "%LOG4CMD_REGKEY%" /v "%LOG4CMD_REGVAL%"
+)
 endlocal
 goto :eof
 
