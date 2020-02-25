@@ -8,6 +8,8 @@ It can be configured to send the same message to each of several ["loggers"](#lo
 
 ## Usage
 
+### Direct invocation
+
 To log a message, you can invoke `log4vbs.vbs` directly:
 ```
 cscript //nologo log4vbs.vbs /lvl:{debug|info|warn|error|fatal|none|pass|fail|skip} /msg:your-message-in-double-quotes [/src:override-default-configured-source]
@@ -21,7 +23,9 @@ cscript //nologo log4vbs.vbs /lvl:info /msg:"This is only a test."
 - The configuration specifies a default value for `src` (the [Log Source](#log-source), see below for details).
   - Therefore the `src` argument is optional.
 
-To do this more succinctly, you can also use one of the "convenience scripts" for general purpose logging:
+### Invocation via convenience scripts
+
+To make invocations more succinct, you can also use one of the "convenience scripts" for general purpose logging:
 
 - `log_debug.cmd`
 - `log_info.cmd`
@@ -42,9 +46,19 @@ log_debug "Wow! This is wonderful" myDebugLogSource
 log_fatal "Bummer. Cannot continue. Sorry"
 ```
 
+There is also a "no-operation" dummy script that does absolutely nothing; you can use this when you temporarily want to suppress another logging operation from your script:
+
+- `log_noop.cmd`
+
+### Creating paths for supplementary logs
+
 To create a path to a "supplementary log", as described in the [Supplementary Logs](#supplementary-logs) section below, and assign it to the `MY_SUPPLEMENATARY_LOG_PATH` environment variable:
 ```
 log4cmd_newlog.cmd MY_SUPPLEMENATARY_LOG_PATH sourceName logName
+```
+Note, however, that this path will *not* be enclosed in double quotes; if it contains spaces then you must enclose it in double quotes when you reference it, e.g.:
+```
+type "%MY_SUPPLEMENATARY_LOG_PATH%"
 ```
 
 ## How to use - quick start
@@ -111,7 +125,10 @@ To see `log4cmd` in action, assuming that the default settings seem acceptable t
 
 ### Customization
 
-Customizations will hopefully be straightforward.  (For a more advanced approach that may be easier to maintain, see [#alternative-configuration-technique---tail-patching](Alternative Configuration Technique - "tail patching") below.)
+(For a more advanced approach that may be easier to maintain, see [Alternative Customization Technique - "tail patching"](#alternative-customization-technique---tail-patching) below.)
+
+Customizations will hopefully be straightforward.
+
 - If you want to customize the registry key used to locate where log files will be written, or to customize that location, copy `log4cmd_regkey_example.cmd` to `log4cmd_regkey.cmd` and make the desired changes there.
 - If you want to configure the logging behavior itself, copy `log4vbs_config_example.vbs` to `log4vbs_config.vbs` and make the desired changes there:
   - You can modify `strLog4cmdKey` to match any change made to the location in `log4cmd_regkey.cmd`.
@@ -143,7 +160,7 @@ A hallmark of secure logging is that logs be written where they cannot be modifi
 
 The Windows Event Log is set up to achieve such non-redactability to a great degree, for unpriviliged users at least; however, an unprivileged user can only write to the *Application Log* "event source" unless an administrator creates an application-specific event source, so it may be too much of a jumble to be worthwhile.  If you want to do this, you might find what you need to get started at [https://ss64.com/vb/logevent.html](https://ss64.com/vb/logevent.html).
 
-## Alternative Configuration Technique - "tail patching"
+## Alternative Customization Technique - "tail patching"
 
 A "tail patch" is applying a few minor changes after some code has executed.  This makes minor configuration changes easier both to read and to maintain.
 
