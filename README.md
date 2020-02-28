@@ -180,5 +180,5 @@ Similarly, you can override just the logging location by creating `log4cmd_regke
 ```
 @call "%~dp0\log4cmd_regkey_example.cmd"
 @set LOG4CMD_ROOT_EX=%TEMP%\log4cmd
-@set LOG4CMD_ROOT=%%TEMP%%\log4cmd
+@set LOG4CMD_ROOT_IN=%%TEMP%%\log4cmd
 ```
