@@ -1,8 +1,8 @@
 @echo off
 :: Generic source log name setup script log4cmd_newlog.cmd:
-::   1. %1 sourceName
-::   2. %2 logName
-::   3. %3 variableName to set
+::   1. %1 variableName to set
+::   2. %2 sourceName
+::   3. %3 logName
 ::   4. Actions:
 ::     a. Abort if log4cmd is not configured
 ::     b. Abort if %3 is empty
