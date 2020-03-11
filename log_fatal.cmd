@@ -1,3 +1,3 @@
 @echo off
-if not [%2] == [] cscript //nologo "%~dp0\log4vbs.vbs" /lvl:fatal /msg:%1 /src:%2
-if     [%2] == [] cscript //nologo "%~dp0\log4vbs.vbs" /lvl:fatal /msg:%1
+:: add log level and pass control to log_level_async.cmd [does not return]
+"%~dp0\log_level_async.cmd" fatal %*

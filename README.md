@@ -4,7 +4,7 @@ This is a configurable command-line logger for Windows, written in VBScript.
 
 It can be invoked directly from the Windows command line or included in a VBScript program.
 
-It can be configured to send the same message to each of several ["loggers"](#loggers), subject to ["log-level filtering"](#log-level-filtering). 
+It can be configured to send the same message to each of several ["loggers"](#loggers), subject to ["log-level filtering"](#log-level-filtering).
 
 ## Usage
 
@@ -101,6 +101,12 @@ As long as an alternative log source has not been specified, log messages will b
 - `CCYY` is the current year, `MM` is the current month (01-12), and `DD` is the current day-of-month, in the UTC time zone.
 - When logging, if a log source is specified as an alternative to the default, it will be used as the prefix in lieu of `log4vbs`.
 
+#### Synchronous Logging by `LOG_*.CMD` Scripts
+
+By default, all `LOG_*.CMD` scripts wait for all loggers to finish running before returning.
+
+If you define the `LOG4CMD_ASYNC` environment variable before calling, however, these will delegate logging to a background task and return immediately.
+
 ### Demonstration
 
 To see `log4cmd` in action, assuming that the default settings seem acceptable to you:
@@ -108,24 +114,29 @@ To see `log4cmd` in action, assuming that the default settings seem acceptable t
 #### Set Up
 
 - Run `install_example.cmd`.
-- Run `demo_log4cmd.cmd` to demonstrate invocation of `log4vbs.vbs` directly from the command line.
 
 #### Logging
 
+- Run `demo_log4cmd.cmd` to demonstrate invocation of `log4vbs.vbs` directly from the command line.
 - Run `cscript //nologo demo_log4vbs.vbs` to demonstrate invocation of `log4vbs.vbs` from VBScript by inclusion.
   - This is in fact run from `demo_log4cmd.cmd` as well.
+- Run `demo_log4cmd_async.cmd` to demonstrate asynchronous logging with the `LOG_*.CMD` scripts.  As would be expected:
+  - The synchronous messages will appear in the order in which they are logged.
+  - The asynchronous messages may not appear in the order in which they are logged.
 
 #### Supplementary Logs
 
 - Run `log4cmd_newlog.cmd` to create a unique path for a general purpose "supplementary log" file.
   - Each supplementary log for a give source is written to a subdirectory named after that source, created in the logging root directory.
   - usage: `log4cmd_newlog.cmd MY_LOGNAME_LOG mySourceName myLogName`
-    - This creates the `mySourceName` subdirectory under the `log4cmd` logging directory root and assigns to the `MY_LOGNAME_LOG` environment variable a unique path that can be used to log any text in any fashion that you require. 
+    - This creates the `mySourceName` subdirectory under the `log4cmd` logging directory root and assigns to the `MY_LOGNAME_LOG` environment variable a unique path that can be used to log any text in any fashion that you require.
     - This does not in fact create the log file, though it does create a subdirectory for it if it does not already exist.
 
 ### Customization
 
-(For a more advanced approach that may be easier to maintain, see [Alternative Customization Technique - "tail patching"](#alternative-customization-technique---tail-patching) below.)
+(For a more advanced approach that may be easier to maintain, see
+[Alternative Customization Technique - "tail patching"](#alternative-customization-technique---tail-patching)
+below.)
 
 Customizations will hopefully be straightforward.
 
@@ -140,13 +151,14 @@ Customizations will hopefully be straightforward.
   - You can modify `logLevelFilter` to remove log levels that you wish to suppress from logging.
 - If you don't like the behavior of `install_example.cmd` you can copy it to `install.cmd` and adjust it accordingly.
 
-
 ### Loggers
 
 Presently there are two loggers:
 
 - log to standard output
 - log to a file in the designated log directory.
+
+(The next logger I would like to have would be one that logs to an SQLite database.)
 
 ### Log-level Filtering
 

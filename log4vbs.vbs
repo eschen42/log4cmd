@@ -28,12 +28,24 @@ End Function
 Sub MyLogger(Level, Message)
   Dim mySuccess
   mySuccess = False
-  On Error Resume Next
-  mySuccess = Logger(Level, Message)
-  On Error Goto 0
-  If Not mySuccess Then
-    WScript.StdOut.WriteLine "NoLog: " & Level & " " & Message
-  End If
+  Dim myTTL
+  For myTTL = 1 to 5
+    If mySuccess Then Exit For
+    On Error Resume Next
+    mySuccess = Logger(Level, Message)
+    ' The only Err.Number that I have seen here is 70 Permission Denied
+    ' If Err.Number <> 0 Then
+    '   WScript.StdErr.WriteLine "MyLogger myTTL " & myTTL & _
+    '     " because error " & Err.Number & " - " & Err.Description & _
+    '     " - for message: " & Message
+    ' End If
+    On Error Goto 0
+    If Not mySuccess Then
+      Randomize
+      WScript.Sleep 200 + (500 * Rnd)
+    End If
+  Next ' myTTL
+  If Not mySuccess Then WScript.StdOut.WriteLine "NoLog: " & Level & " " & Message
 End Sub
 
 Sub LogDebug(Message)
