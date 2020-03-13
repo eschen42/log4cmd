@@ -105,7 +105,7 @@ As long as an alternative log source has not been specified, log messages will b
 
 By default, all `LOG_*.CMD` scripts wait for all loggers to finish running before returning.
 
-If you define the `LOG4CMD_ASYNC` environment variable before calling, however, these will delegate logging to a background task and return immediately.
+**EXPERIMENTAL** If you define the `LOG4CMD_ASYNC` environment variable before calling, however, these will delegate logging to a background task and return immediately.  This has reliability issues at the moment, however, so don't assume that it's going to work.
 
 ### Demonstration
 
