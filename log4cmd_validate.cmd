@@ -64,14 +64,13 @@ set UNVALIDATED| findstr /r /c:"^UNVALIDATED="| findstr /r /c:"^UNVALIDATED=%DER
 :: These statements will be reached only when validation fails
 set RESULT_ERROR=%ERRORLEVEL%
 echo %~nx0 %* 1>&2
-echo "Not valid or FINDSTR failed with error %ERRORLEVEL% - execute without options for help." 1>&2
 exit /b 87
 
 
 :validator_check_init
   :: Note well: Each of these strings is the TAIL of a regex;
   :: - the head of which will be ^UNVALIDATED=
-  set RXDQNQ=[\"][^^^^^^^^\"]*[^^\"][\"]$
+  set RXDQNQ=[\"][^^^^^^^\"]*[^^\"][\"]$
   set RXNQNS=[^&^<^>^|^^0-9!#$%'()*+,./:;=?@A-Z\[\\\]_`a-z{}~-]*$
   goto :eof
 
