@@ -26,6 +26,9 @@ call :expect_failure
 set ARGS=call ..\log4cmd_validate.cmd MYRESULT RXDQNQ "validate three-argument RXDQNQ case"
 call :skip_or_run
 
+set ARGS=call ..\log4cmd_validate.cmd MYRESULT RXDQNQ "validate internal hat^ RXDQNQ case"
+call :skip_or_run
+
 set ARGS=call ..\log4cmd_validate.cmd MYRESULT RXDQNQ
 call :skip_or_run
 
