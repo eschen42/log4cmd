@@ -9,10 +9,13 @@ pushd "%~dp0"
 set NX0=%~nx0
 set LAST_FAILURE=0
 set LOG4CMD_SOURCE=test_validate_cmd
+set LOG4CMD_VALIDATE_LVL_MSG_SRC=TRUE
 
 REM set environment values for testing
 call envars_for_test.cmd
 %LOG4CMD_INSTALL%
+
+set EXPECT_FAILURE=
 
 %LOG_NONE% "Start %NX0% ----------" %LOG4CMD_SOURCE%
 
@@ -20,7 +23,24 @@ REM set unique paths if desired e.g.:
 :: %NEW_LOG% MY_METADATA_LOG %LOG4CMD_SOURCE% metadata
 :: %LOG_NONE% "Metadata log - %MY_METADATA_LOG%" %LOG4CMD_SOURCE% >> test_results.txt
 
-: these fail because log level is in quotation marks
+:: This passes because angle brackets, ampersands, pipes, and hats are escaped below
+:: Put the following into test_file.txt
+::   YOU ARE IN a ^ little maze of < twisty & passages | all > different
+echo YOU ARE IN a ^^ little maze of ^< twisty ^& passages ^| all ^> different> test_file.txt
+:: Then read it and insert it into ARGS
+for /f "delims=" %%L in (test_file.txt) do set ARGS=call ..\log_level_async.cmd  pass "%%L" test
+:: escape less than
+set ARGS=%ARGS:<=^<%
+:: escape greater than
+set ARGS=%ARGS:>=^>%
+:: escape ampersand
+set ARGS=%ARGS:&=^&%
+:: escape pipe
+set ARGS=%ARGS:|=^|%
+call :skip_or_run
+del test_file.txt
+
+:: these fail because log level is in quotation marks
 set ARGS=call ..\log_level_async.cmd "FAIL" "you are in a maze of little twisty passages all alike"
 call :expect_failure
 set ARGS=call ..\log_level_async.cmd "FAIL" "you are in a maze of little twisty passages all alike"         "test"
@@ -56,8 +76,6 @@ call :expect_failure
 set ARGS=call ..\log_pass.cmd               "you are in a twisty little maze of passages all different"      test
 call :skip_or_run
 
-set ARGS=call ..\log_FAIL.cmd               you_are_in_"a_maze_of_little  | twisty_passages"_all_alike       test
-call :expect_failure
 set ARGS=call ..\log_FAIL.cmd               you_are_in_"a_maze_of_little ^| twisty_passages"_all_alike       test
 call :expect_failure
 set ARGS=call ..\log_FAIL.cmd               "you_are_in_"a_maze_of_little twisty_passages"_all_alike"        test
@@ -117,10 +135,11 @@ REM Subroutines definitions follow
   set TEST_RESULT=%ERRORLEVEL%
 
   if %TEST_RESULT% equ 0 goto :run_pass
-    if not defined EXPECT_FAILURE %LOG_FAIL% "%ARGS:"='%" %LOG4CMD_SOURCE% >> test_results.txt
-    if     defined EXPECT_FAILURE %LOG_PASS% "%ARGS:"='%" %LOG4CMD_SOURCE% >> test_results.txt
-    if not defined EXPECT_FAILURE echo ---------- FAIL ----------- 1>&2
-    if     defined EXPECT_FAILURE echo ---------- PASS ----------- 1>&2
+    :: TEST_RESULT is not zero:
+    if not defined EXPECT_FAILURE %LOG_FAIL% "Error unexpected non-failure: %ARGS:"='%" %LOG4CMD_SOURCE% >> test_results.txt
+    if     defined EXPECT_FAILURE %LOG_PASS% "Failure by design: %ARGS:"='%" %LOG4CMD_SOURCE% >> test_results.txt
+    if not defined EXPECT_FAILURE echo ---------- FAIL %TEST_RESULT% ----------- 1>&2
+    if     defined EXPECT_FAILURE echo ---------- PASS %TEST_RESULT% ----------- 1>&2
     goto :eof
 
 :run_pass

@@ -7,6 +7,17 @@
 :: argument 3 must be the log source and must have neither double quotes nor spaces
 setlocal
 
+if defined LOG4CMD_VALIDATE_NOTHING (
+  set NO_VALIDATION=TRUE
+  set ONLY_VALIDATE_MSG=TRUE
+) else if defined LOG4CMD_VALIDATE_LVL_MSG_SRC (
+  set NO_VALIDATION=
+  set ONLY_VALIDATE_MSG=
+) else (
+  set NO_VALIDATION=
+  set ONLY_VALIDATE_MSG=TRUE
+)
+
 :: capture arg 0
 set DP0=%~dp0
 set NX0=%~nx0
@@ -17,13 +28,6 @@ set SRC=
 
 if not defined USAGE set USAGE=%NX0% level "message in double quotes" log_source
 
-:: pattern for all ASCII printables but space and double quote
-set NODQSP=!#-/0-9:-@[-`a-z{-~
-:: pattern for all ASCII printables but double quote
-set NODQ= %NODQSP%
-:: pattern for double quote, by excluding everything else
-set DQ=^^^%NODQ%
-
 :: capture arg 4 if it exists [it should not]
 set ARG4=%4
 if defined ARG4 (
@@ -33,9 +37,11 @@ if defined ARG4 (
   goto :usage
 )
 
+
 :: capture arg 1
 set LVL=%1
-:: echo LVL "%LVL%"
+if defined ONLY_VALIDATE_MSG goto :post_arg1
+
 call "%~dp0\log4cmd_validate.cmd" LVL RXNQNS
 if %ERRORLEVEL% neq 0 (
   echo LVL "%LVL%"
@@ -44,6 +50,7 @@ if %ERRORLEVEL% neq 0 (
   echo %NX0% was invoked with the following arguments: >&2
   goto :usage
 )
+
 :: validate argument 1 to avert scripting attacks
 set LVL | findstr /r /c:"^LVL=" | findstr /i "LVL=debug LVL=error LVL=fail LVL=fatal LVL=info LVL=none LVL=noop LVL=pass LVL=skip LVL=warn" >NUL || (
   echo  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! >&2
@@ -54,8 +61,13 @@ set LVL | findstr /r /c:"^LVL=" | findstr /i "LVL=debug LVL=error LVL=fail LVL=f
   goto :usage
 )
 
+:post_arg1
+
 :: validate argument 2 is double-quoted to avert scripting attacks
 set MSG=%2
+
+if defined ONLY_VALIDATE_MSG goto :post_arg2
+
 :: - MSG must:
 ::   - begin and end with double quotes
 ::   - have no internal double quotes
@@ -74,18 +86,25 @@ if %RESULT% neq 0 (
   echo %NX0% was invoked with the following arguments: >&2
   goto :usage
 )
+
+:post_arg2
+:: escape less than
 set MSG=%MSG:<=^<%
+:: escape greater than
+set MSG=%MSG:>=^>%
+:: escape ampersand
+set MSG=%MSG:&=^&%
+:: escape pipe
+set MSG=%MSG:|=^|%
 
 :: validate argument 3 is unquoted and without spaces to avert scripting attacks
 set SRC=%3
+if defined ONLY_VALIDATE_MSG goto :post_arg3
+
 if not defined SRC goto :post_source
 :: - SRC must:
 ::   - not begin or end with double quotes
 ::   - have no internal double quotes
-:: - regular expressions containing double quotes must escape certain
-::   characters in the unquoted sections with hats:
-::     - NODQSP matches every printable ASCII character but space and double quote
-:: set SRC | findstr /r /c:"^SRC="| findstr /r /c:"^SRC=[%NODQSP%]*$"
 call "%~dp0\log4cmd_validate.cmd" SRC RXNQNS
 
 if %ERRORLEVEL% neq 0 (
@@ -97,6 +116,8 @@ if %ERRORLEVEL% neq 0 (
 )
 
 :post_source
+
+:post_arg3
 
 if defined LOG4CMD_ASYNC (
   set CLEAN_CMD=start /b /i /d "%CD%" "%windir%\explorer.exe" "%windir%\system32\cmd.exe" /c
