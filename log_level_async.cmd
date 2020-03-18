@@ -66,7 +66,7 @@ set LVL | findstr /r /c:"^LVL=" | findstr /i "LVL=debug LVL=error LVL=fail LVL=f
 :: validate argument 2 is double-quoted to avert scripting attacks
 set MSG=%2
 
-if defined ONLY_VALIDATE_MSG goto :post_arg2
+if defined NO_VALIDATION goto :post_arg2
 
 :: - MSG must:
 ::   - begin and end with double quotes

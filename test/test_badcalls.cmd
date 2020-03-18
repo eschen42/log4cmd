@@ -61,8 +61,11 @@ call :skip_or_run
 :: these fail because the message is not in double quotes
 set ARGS=call ..\log_level_async.cmd  FAIL  you^ are^ in^ a^ maze^ of^ little^ twisty^ passages^ all^ alike  test
 call :expect_failure
+
+::::: %LOG_NONE% "LAST_FAILURE is %LAST_FAILURE% beforehand" %LOG4CMD_SOURCE% >> test_results.txt
 set ARGS=call ..\log_FAIL.cmd               you_are_in_a_maze_of_little_twisty_passages_all_alike            test
 call :expect_failure
+::::: %LOG_NONE% "LAST_FAILURE is %LAST_FAILURE% afterward" %LOG4CMD_SOURCE% >> test_results.txt
 
 :: this passes because the message is in double quotes
 set ARGS=call ..\log_pass.cmd               "you are in a twisty maze of little passages all different"      test
@@ -75,7 +78,6 @@ call :expect_failure
 :: this passes because the message has no internal double quotes
 set ARGS=call ..\log_pass.cmd               "you are in a twisty little maze of passages all different"      test
 call :skip_or_run
-
 set ARGS=call ..\log_FAIL.cmd               you_are_in_"a_maze_of_little ^| twisty_passages"_all_alike       test
 call :expect_failure
 set ARGS=call ..\log_FAIL.cmd               "you_are_in_"a_maze_of_little twisty_passages"_all_alike"        test
@@ -133,6 +135,7 @@ REM Subroutines definitions follow
   %ARGS%
   :: capture and report result
   set TEST_RESULT=%ERRORLEVEL%
+  ::::: %LOG_NONE% "TEST_RESULT %TEST_RESULT%" %LOG4CMD_SOURCE% >> test_results.txt
 
   if %TEST_RESULT% equ 0 goto :run_pass
     :: TEST_RESULT is not zero:

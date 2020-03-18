@@ -1,4 +1,4 @@
-@set ERRORLEVEL=&setlocal&echo off
+@set ERRORLEVEL=&setlocal
 set TRACE=
 if defined TRACE echo -------------------------------------- 1>&2
 if defined TRACE echo running %~nx0 %* 1>&2
