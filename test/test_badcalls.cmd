@@ -9,15 +9,21 @@ pushd "%~dp0"
 set NX0=%~nx0
 set LAST_FAILURE=0
 set LOG4CMD_SOURCE=test_validate_cmd
-set LOG4CMD_VALIDATE_LVL_MSG_SRC=TRUE
 
 REM set environment values for testing
 call envars_for_test.cmd
 %LOG4CMD_INSTALL%
 
+set LOG4CMD_VALIDATE_NOTHING=
+set LOG4CMD_VALIDATE_LVL_MSG_SRC=TRUE
 set EXPECT_FAILURE=
+set LOG4CMD
 
 %LOG_NONE% "Start %NX0% ----------" %LOG4CMD_SOURCE%
+
+:: this passes notwithstanding internal double quotes
+set ARGS=call ..\log_pass.cmd               "*expect PASS* you_are_in_"a_maze_of_little" twisty_passages_all_alike"        test
+call :skip_or_run
 
 REM set unique paths if desired e.g.:
 :: %NEW_LOG% MY_METADATA_LOG %LOG4CMD_SOURCE% metadata
@@ -64,7 +70,9 @@ call :expect_failure
 
 ::::: %LOG_NONE% "LAST_FAILURE is %LAST_FAILURE% beforehand" %LOG4CMD_SOURCE% >> test_results.txt
 set ARGS=call ..\log_FAIL.cmd               you_are_in_a_maze_of_little_twisty_passages_all_alike            test
+@echo on
 call :expect_failure
+@echo off
 ::::: %LOG_NONE% "LAST_FAILURE is %LAST_FAILURE% afterward" %LOG4CMD_SOURCE% >> test_results.txt
 
 :: this passes because the message is in double quotes
@@ -75,13 +83,27 @@ call :skip_or_run
 set ARGS=call ..\log_FAIL.cmd               "you_are_in_"a_maze_of_little twisty_passages"_all_alike"        test
 call :expect_failure
 
-:: this passes because the message has no internal double quotes
-set ARGS=call ..\log_pass.cmd               "you are in a twisty little maze of passages all different"      test
+:: this passes notwithstanding internal double quotes
+set ARGS=call ..\log_pass.cmd               "*expect PASS* you_are_in_""a_maze_of_little twisty_passages""_all_alike"      test
 call :skip_or_run
+
+:: this passes because the message has no internal double quotes
+set ARGS=call ..\log_pass.cmd               "*expect PASS* you are in a twisty little maze of passages all different"      test
+call :skip_or_run
+
+:: this fails because the message has no enclosing double quotes
 set ARGS=call ..\log_FAIL.cmd               you_are_in_"a_maze_of_little ^| twisty_passages"_all_alike       test
 call :expect_failure
+
+:: this passes because the message has enclosing double quotes
+set ARGS=call ..\log_FAIL.cmd               "you_are_in_"a_maze_of_little ^| twisty_passages"_all_alike"       test
+call :skip_or_run
+
+:: this fails because the message has too many arguments (because of spaces outside internal double quotes
 set ARGS=call ..\log_FAIL.cmd               "you_are_in_"a_maze_of_little twisty_passages"_all_alike"        test
 call :expect_failure
+
+:finito
 
 %LOG_NONE% "---------- Finished %NX0%" %LOG4CMD_SOURCE%
 

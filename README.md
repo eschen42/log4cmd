@@ -40,15 +40,25 @@ or for reporting test results:
 - `log_fail.cmd`
 - `log_skip.cmd`
 
-Each of these takes the log message as the first argument, and optionally an alternative source, e.g.:
+There is also a "no-operation" dummy script that does absolutely nothing; you can use this when you temporarily want to suppress another logging operation from your script:
+
+- `log_noop.cmd`
+
+Each of these scripts takes the log message in double quotes as the first argument, and optionally an alternative source (without quotes), e.g.:
 ```
 log_debug "Wow! This is wonderful" myDebugLogSource
 log_fatal "Bummer. Cannot continue. Sorry"
 ```
+Note that:
+- In addition to being enclosed by double quotes, must be recognized as a single argument by the `CMD` shell.
+  - If it has internal double quotes, 
+    - they must be paired, and
+    - no spaces may appear between these pairs.
+- The second argument may not include double quotes or spaces.
 
-There is also a "no-operation" dummy script that does absolutely nothing; you can use this when you temporarily want to suppress another logging operation from your script:
+#### `log_level_async.cmd`
 
-- `log_noop.cmd`
+The convenience scripts all call `log_level_async.cmd`; some error messages reference this script rather than the calling script.
 
 ### Creating paths for supplementary logs
 
@@ -71,6 +81,9 @@ install_example.cmd
 
 :: Write some log messages.
 demo_log4cmd.cmd
+
+:: Run some tests if you like.
+test\run_tests.cmd
 
 :: Create mySourceName subdirectory in log directory and generate a path for a
 ::   uniquely named file in that directory, but do not create that file yet.

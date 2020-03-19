@@ -44,6 +44,9 @@ call :skip_or_run
 set ARGS=call ..\log4cmd_validate.cmd MYRESULT RXDQNQ RXNQNS_value_fails_valdation_against_RXDQNQ_expression
 call :expect_failure
 
+set ARGS=call ..\log4cmd_validate.cmd MYRESULT RXDQ   "pass RXDQ having "internal" quote"
+call :skip_or_run
+
 set ARGS=call ..\log4cmd_validate.cmd MYRESULT RXDQNQ "fail RXDQNQ because of"internal"quote"
 call :expect_failure
 

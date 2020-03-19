@@ -21,15 +21,14 @@ if defined LOG4CMD_VALIDATE_NOTHING (
 :: capture arg 0
 set DP0=%~dp0
 set NX0=%~nx0
-set MSG=
-set LVL=
-set ARG4=
-set SRC=
+set LVL=%1
+set MSG=%2
+set SRC=%3
+set ARG4=%4
 
 if not defined USAGE set USAGE=%NX0% level "message in double quotes" log_source
 
-:: capture arg 4 if it exists [it should not]
-set ARG4=%4
+:: handle arg 4 if it exists [it should not]
 if defined ARG4 (
   echo  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! >&2
   echo %NX0%: too many arguments 1>&2
@@ -38,8 +37,7 @@ if defined ARG4 (
 )
 
 
-:: capture arg 1
-set LVL=%1
+:: handle arg 1
 if defined ONLY_VALIDATE_MSG goto :post_arg1
 
 call "%~dp0\log4cmd_validate.cmd" LVL RXNQNS
@@ -48,6 +46,7 @@ if %ERRORLEVEL% neq 0 (
   echo  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! >&2
   echo %NX0%: bad first argument [level] 1>&2
   echo %NX0% was invoked with the following arguments: >&2
+  echo %NX0% %* 1>&2
   goto :usage
 )
 
@@ -58,25 +57,24 @@ set LVL | findstr /r /c:"^LVL=" | findstr /i "LVL=debug LVL=error LVL=fail LVL=f
   echo Expected one of: 1>&2
   echo ^  info error fail fatal info none noop pass skip warn 1>&2
   echo %NX0% was invoked with the following arguments: >&2
+  echo %NX0% %* 1>&2
   goto :usage
 )
 
 :post_arg1
 
 :: validate argument 2 is double-quoted to avert scripting attacks
-set MSG=%2
 
 if defined NO_VALIDATION goto :post_arg2
 
 :: - MSG must:
 ::   - begin and end with double quotes
-::   - have no internal double quotes
-:: - Regular expressions containing double quotes must escape certain
-::   characters with hats.
-::   - So, use patterns that don't include double quotes
+::   - must not have unpaired internal double quotes
+::   - must have no spaces between pairs of internal double quotes
+:: - An internal double quote will be converted to a pair of single quotes.
 
 set RESULT=1
-call "%~dp0\log4cmd_validate.cmd" MSG RXDQNQ
+call "%~dp0\log4cmd_validate.cmd" MSG RXDQ
 
 set RESULT=%ERRORLEVEL%
 if not %ERRORLEVEL% equ 0 echo line 72 RESULT %RESULT%
@@ -84,6 +82,7 @@ if %RESULT% neq 0 (
   echo  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! >&2
   echo %NX0%: second argument [message] not found or is bad 1>&2
   echo %NX0% was invoked with the following arguments: >&2
+  echo %NX0% %* 1>&2
   goto :usage
 )
 
@@ -98,7 +97,6 @@ set MSG=%MSG:&=^&%
 set MSG=%MSG:|=^|%
 
 :: validate argument 3 is unquoted and without spaces to avert scripting attacks
-set SRC=%3
 if defined ONLY_VALIDATE_MSG goto :post_arg3
 
 if not defined SRC goto :post_source
@@ -112,6 +110,7 @@ if %ERRORLEVEL% neq 0 (
   echo  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! >&2
   echo %NX0%: bad third argument [log_source] 1>&2
   echo %NX0% was invoked with the following arguments: >&2
+  echo %NX0% %* 1>&2
   goto :usage
 )
 
@@ -133,8 +132,12 @@ if not defined SRC set LOG_CMD=cscript //nologo ^"%DP0%\log4vbs.vbs" /lvl:%LVL% 
 exit /b 0
 
 :usage
-
 if defined LVL echo ^ ^ ^ ^ ^ ^ ^ ^ %*
+if defined LVL  set LVL 1>&2
+if defined MSG  set MSG 1>&2
+if defined SRC  set SRC 1>&2
+if defined ARG4 set ARG4 1>&2
+
 echo usage: %USAGE% 1>&2
 if not defined LOG4CMD_TERSE (
   echo ^ ^ + level argument [if applicable] should be unquoted and be one of: 1>&2
