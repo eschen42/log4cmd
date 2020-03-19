@@ -1,4 +1,4 @@
-@echo off
+REM @echo off
 :: example:
 ::   log_level_async debug "this is only a test" my_debug
 :: argument 1 must be the log level and must be unquoted
