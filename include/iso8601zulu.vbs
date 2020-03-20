@@ -6,52 +6,58 @@
 '   WScript.StdOut.WriteLine ToIsoDateTimeZulu(NOW(), "-", ":")
 ' Warning! This may not properly handle fractional hour timezones!
 
+' iso8601zulu.vbs provides:
+'   Public Function ToIsoDateTime(datetime, dash, colon)                  ' local time as ccyy-mm-ddThh:mm:ss[+-]nnnn
+'   Public Function ToIsoDateTimeZulu(datetime, dash, colon, offsetHours) ' UTC as ccyy-mm-ddThh:mm:ssZ
+'   Public Function ToIsoDate(datetime, dash)                             ' when dash is "-", this produces "CCYY-MM-DD"
+'   Public Function ToIsoTime(datetime, colon)                            ' when colon is ":", this produces "HH:mm:ss" (24 hour time)
+'   Public Function GetTimeZoneOffsetHours()                              ' Get timezone offset in hours (behavior in fractional timezones is untested)
+'   Public Function GetTimeZoneOffsetString()                             ' Get ISO8601 timezone offset string
+
 '''   ' To include this in another VBScript file, use this include
-'''   ' function ref: https://stackoverflow.com/a/43957897
-'''       Sub include( relativeFilePath ) 
+'''   ' function (ref: https://stackoverflow.com/a/43957897):
+'''       Sub include( relativeFilePath )
 '''         Set fso = CreateObject("Scripting.FileSystemObject")
-'''         thisFolder = fso.GetParentFolderName( WScript.ScriptFullName ) 
+'''         thisFolder = fso.GetParentFolderName( WScript.ScriptFullName )
 '''         absFilePath = fso.BuildPath( thisFolder, relativeFilePath )
 '''         executeGlobal fso.openTextFile( absFilePath ).readAll()
 '''       End Sub
-'''   ' as follows
+'''   ' as follows (adjusting the path as needed):
 '''       include ".\iso8601zulu.vbs"
 
-Public Function ToIsoDateTime(datetime, dash, colon)
+Public Function ToIsoDateTime(datetime, dash, colon) ' local time as ccyy-mm-ddThh:mm:ss[+-]nnnn
   ToIsoDateTime = ToIsoDate(datetime, dash) & "T" & ToIsoTime(datetime, colon) & GetTimeZoneOffsetString()
 End Function
 
-Public Function ToIsoDateTimeZulu(datetime, dash, colon, offset)
-  'offset = GetTimeZoneOffset()
-  datetime = DateAdd("h", -offset, datetime)
+Public Function ToIsoDateTimeZulu(datetime, dash, colon, offsetHours) ' UTC as ccyy-mm-ddThh:mm:ssZ
+  ' for offsethours use the result of 'GetTimeZoneOffsetHours()'
+  datetime = DateAdd("h", -offsetHours, datetime)
   ToIsoDateTimeZulu = ToIsoDate(datetime, dash) & "T" & ToIsoTime(datetime, colon) & "Z"
 End Function
 
-Public Function ToIsoDate(datetime, dash)
+Public Function ToIsoDate(datetime, dash) ' when dash is "-", this produces "CCYY-MM-DD"
   ToIsoDate = CStr(Year(datetime)) & dash & StrN2(Month(datetime),"") & dash & StrN2(Day(datetime),"")
-End Function    
+End Function
 
-Public Function ToIsoTime(datetime, colon) 
+Public Function ToIsoTime(datetime, colon) ' when colon is ":", this produces "HH:mm:ss" (24 hour time)
   ToIsoTime = StrN2(Hour(datetime),"") & colon & StrN2(Minute(datetime),"") & colon & StrN2(Second(datetime),"")
 End Function
 
-Function GetTimeZoneOffset()
+Public Function GetTimeZoneOffsetHours() ' Get timezone offset in hours (behavior in fractional timezones is untested)
+  ' ref: https://stackoverflow.com/a/13980554
   Const sComputer = "."
-
   Dim oWmiService : Set oWmiService = _
     GetObject("winmgmts:{impersonationLevel=impersonate}!\\" _
       & sComputer & "\root\cimv2")
-
-  Set cItems = oWmiService.ExecQuery("SELECT * FROM Win32_ComputerSystem")
-
+  Set cItems = oWmiService.ExecQuery("SELECT CurrentTimeZone FROM Win32_ComputerSystem")
   For Each oItem In cItems
-    GetTimeZoneOffset = oItem.CurrentTimeZone / 60.0
+    GetTimeZoneOffsetHours = oItem.CurrentTimeZone / 60.0
     Exit For
   Next
 End Function
 
-Function GetTimeZoneOffsetString()
-  GetTimeZoneOffsetString = StrN2(GetTimeZoneOffset(),"+") & "00"
+Public Function GetTimeZoneOffsetString() ' Get ISO8601 timezone offset string
+  GetTimeZoneOffsetString = StrN2(GetTimeZoneOffsetHours(),"+") & "00"
 End Function
 
 

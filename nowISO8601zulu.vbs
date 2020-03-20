@@ -15,6 +15,6 @@ End Sub
 
 include ".\include\iso8601zulu.vbs"
 
-WScript.StdOut.WriteLine ToIsoDateTimeZulu( Now(), "-", ":", GetTimeZoneOffset() )
+WScript.StdOut.WriteLine ToIsoDateTimeZulu( Now(), "-", ":", GetTimeZoneOffsetHours() )
 
 set fso = Nothing

@@ -5,7 +5,7 @@
 Sub LogToFile(Source, Level, Message)
   Const ForAppending = 8
   Dim oLogFile  : Set oLogFile = Nothing
-  Dim nowZulu   : nowZulu = ToIsoDateTimeZulu(NOW(), "-", ":", GetTimeZoneOffset())
+  Dim nowZulu   : nowZulu = ToIsoDateTimeZulu(NOW(), "-", ":", GetTimeZoneOffsetHours())
   Dim logFile   : logFile = strLog4cmdDir & "\" & Source & "-" & Left(nowZulu,10) & ".log"
   Dim mySuccess : mySuccess = False
   Dim myTTL

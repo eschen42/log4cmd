@@ -3,6 +3,6 @@
 
 Public Function LogMessage(Level, Message)
   Dim nowZulu
-  nowZulu = ToIsoDateTimeZulu(NOW(), "-", ":", GetTimeZoneOffset())
+  nowZulu = ToIsoDateTimeZulu(NOW(), "-", ":", GetTimeZoneOffsetHours())
   LogMessage = nowZulu & "  " & Level & " " & Message
 End Function
