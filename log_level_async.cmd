@@ -119,9 +119,9 @@ if %ERRORLEVEL% neq 0 (
 :post_arg3
 
 if defined LOG4CMD_ASYNC (
-  set CLEAN_CMD=start /b /i /d "%CD%" "%windir%\explorer.exe" "%windir%\system32\cmd.exe" /c
+  set CLEAN_CMD=start /BELOWNORMAL /MIN /I /D "%CD%" "%windir%\explorer.exe" "%windir%\system32\cmd.exe" /C
 ) else (
-  set CLEAN_CMD="%windir%\system32\cmd.exe" /c
+  set CLEAN_CMD="%windir%\system32\cmd.exe" /C
 )
 
 if     defined SRC set LOG_CMD=cscript //nologo ^"%DP0%\log4vbs.vbs" /lvl:%LVL% /msg:%MSG% /src:%SRC%
